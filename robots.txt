@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://YOUR_USERNAME.github.io/YOUR_REPOSITORY/sitemap.xml
+Sitemap: https://nikhilkumar210h-debug.github.io/sitemap.xml

@@ -1,0 +1,42 @@
+# VS Code
+.vscode/
+*.code-workspace
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Node / npm (if used later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Build / cache folders
+dist/
+build/
+.cache/
+
+# Python cache (if you add Python later)
+__pycache__/
+*.py[cod]
+.venv/
+venv/

@@ -1024,3 +1024,10 @@ body{
     animation:none!important;
   }
 }
+
+
+@media(min-width:901px){
+  .hero-stage{
+    transform:translate3d(var(--scene-x,0px),calc(var(--scene-y,0px) + var(--hero-scroll,0px)),0) translateY(-50%);
+  }
+}

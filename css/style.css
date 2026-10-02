@@ -997,22 +997,60 @@ body{
 }
 @media(max-width:900px){
   .hero{
-    min-height:780px;
+    min-height:760px;
     display:block;
     padding-top:112px;
-    padding-bottom:70px;
+    padding-bottom:45px;
   }
 }
 @media(max-width:600px){
   .hero{
-    min-height:900px;
+    min-height:760px;
     display:block;
-    padding:105px 22px 70px;
+    padding:96px 20px 34px;
+  }
+  .hero-copy{
+    position:relative;
+    z-index:12;
   }
   .hero h1 .hero-name,
   .hero h1 em,
   .hero h1 .hero-tail{
     animation:none;
+  }
+  .hero-text{
+    margin-top:18px;
+    line-height:1.68;
+  }
+  .hero-actions{
+    margin-top:18px;
+  }
+  .social-row{
+    margin-top:15px;
+  }
+  .hero-stage{
+    position:absolute;
+    width:124vw;
+    height:360px;
+    right:-28vw;
+    top:66%;
+    margin:0;
+    transform:translate3d(0,var(--hero-scroll,0px),0) translateY(-50%);
+    opacity:.72;
+    z-index:3;
+  }
+  #ml-scene{
+    inset:-7%;
+    width:114%;
+    height:114%;
+  }
+  .scene-3d-mark{
+    transform:translate(-50%,-50%) perspective(650px) rotateX(8deg) rotateY(-10deg) scale(.62);
+  }
+  .hero-portrait-float{
+    left:4%;
+    bottom:5%;
+    width:68px;
   }
 }
 @media(prefers-reduced-motion:reduce){

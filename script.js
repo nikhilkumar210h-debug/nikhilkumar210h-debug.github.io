@@ -126,7 +126,7 @@ document.querySelectorAll(".project").forEach(card => {
   const canvas = document.getElementById("ml-scene");
   if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   try {
-    const { default: THREE } = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
+    const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
     camera.position.set(0, 0, 7.4);

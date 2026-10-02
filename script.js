@@ -121,116 +121,163 @@ document.querySelectorAll(".project").forEach(card => {
 });
 
 
-/* Lightweight Three.js ML scene — progressive enhancement */
+/* Cinematic particle-based ML scene — progressive enhancement */
 (async function initMLScene(){
   const canvas = document.getElementById("ml-scene");
   if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
   try {
     const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-    camera.position.set(0, 0, 7.4);
-    const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true, powerPreference:"high-performance"});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
+    camera.position.set(0, 0, 7.8);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha:true,
+      antialias:true,
+      powerPreference:"high-performance"
+    });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.65));
     renderer.setClearColor(0x000000, 0);
+
     const root = new THREE.Group();
+    root.rotation.z = -0.08;
     scene.add(root);
 
-    const core = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.35, 3),
-      new THREE.MeshBasicMaterial({color:0x8175ff, wireframe:true, transparent:true, opacity:.34})
-    );
-    root.add(core);
+    // Dense particle sphere: this is the main visual language of the reference,
+    // reinterpreted as a machine-learning "model space".
+    const count = 1800;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const colorA = new THREE.Color(0x7d6cff);
+    const colorB = new THREE.Color(0xb9c7ff);
+    const colorC = new THREE.Color(0x61e2d5);
 
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(1.02, 32, 32),
-      new THREE.MeshBasicMaterial({color:0x20145f, transparent:true, opacity:.32})
-    );
-    root.add(glow);
-
-    const count = 280;
-    const pos = new Float32Array(count * 3);
-    const phase = new Float32Array(count);
     for(let i=0;i<count;i++){
-      const a=Math.random()*Math.PI*2, b=Math.acos(2*Math.random()-1), r=1.55+Math.random()*.75;
-      pos[i*3]=Math.sin(b)*Math.cos(a)*r;
-      pos[i*3+1]=Math.cos(b)*r;
-      pos[i*3+2]=Math.sin(b)*Math.sin(a)*r;
-      phase[i]=Math.random()*Math.PI*2;
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * Math.PI * 2;
+      const phi = Math.acos(2*v - 1);
+      const shell = Math.pow(Math.random(), .42);
+      const wobble = (Math.random()-.5) * .22;
+      const r = 1.48 + shell * .72 + wobble;
+
+      positions[i*3] = Math.sin(phi) * Math.cos(theta) * r;
+      positions[i*3+1] = Math.cos(phi) * r * .94;
+      positions[i*3+2] = Math.sin(phi) * Math.sin(theta) * r;
+
+      const c = Math.random() < .14 ? colorC : (Math.random() < .52 ? colorA : colorB);
+      colors[i*3] = c.r;
+      colors[i*3+1] = c.g;
+      colors[i*3+2] = c.b;
     }
-    const pg = new THREE.BufferGeometry();
-    pg.setAttribute("position",new THREE.BufferAttribute(pos,3));
-    const particles = new THREE.Points(pg,new THREE.PointsMaterial({color:0xb6c5ff,size:.035,transparent:true,opacity:.78,sizeAttenuation:true}));
-    root.add(particles);
 
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.95,2)),
-      new THREE.LineBasicMaterial({color:0x5fe0d2,transparent:true,opacity:.17})
+    const cloudGeo = new THREE.BufferGeometry();
+    cloudGeo.setAttribute("position", new THREE.BufferAttribute(positions,3));
+    cloudGeo.setAttribute("color", new THREE.BufferAttribute(colors,3));
+
+    const cloud = new THREE.Points(
+      cloudGeo,
+      new THREE.PointsMaterial({
+        size:.035,
+        vertexColors:true,
+        transparent:true,
+        opacity:.86,
+        depthWrite:false,
+        blending:THREE.AdditiveBlending,
+        sizeAttenuation:true
+      })
     );
-    root.add(edges);
+    root.add(cloud);
 
-    const ringMat = new THREE.MeshBasicMaterial({color:0x786bff,transparent:true,opacity:.35});
-    [2.45,2.8].forEach((r,i)=>{
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.008,6,160),ringMat);
-      ring.rotation.set(i?0.9:1.15,i?.55:-.35,.2);
-      root.add(ring);
+    // Inner model signal.
+    const inner = new THREE.Mesh(
+      new THREE.SphereGeometry(1.02, 28, 28),
+      new THREE.MeshBasicMaterial({
+        color:0x34218e,
+        transparent:true,
+        opacity:.14,
+        depthWrite:false,
+        blending:THREE.AdditiveBlending
+      })
+    );
+    root.add(inner);
+
+    // Three very thin orbital traces create motion/depth without turning the
+    // hero into a UI widget.
+    const orbitGroup = new THREE.Group();
+    root.add(orbitGroup);
+    const orbitMats = [
+      new THREE.LineBasicMaterial({color:0x8b7cff,transparent:true,opacity:.28}),
+      new THREE.LineBasicMaterial({color:0x61e2d5,transparent:true,opacity:.16}),
+      new THREE.LineBasicMaterial({color:0x6c78ff,transparent:true,opacity:.20})
+    ];
+
+    [
+      [2.45,1.15,.35],
+      [2.72,.82,-.7],
+      [2.95,.55,1.1]
+    ].forEach(([rx,ry,rz],i)=>{
+      const pts=[];
+      for(let j=0;j<=180;j++){
+        const a=(j/180)*Math.PI*2;
+        pts.push(new THREE.Vector3(Math.cos(a)*rx,Math.sin(a)*ry,0));
+      }
+      const geo=new THREE.BufferGeometry().setFromPoints(pts);
+      const line=new THREE.LineLoop(geo,orbitMats[i]);
+      line.rotation.set(.9+i*.45,.35+i*.3,rz);
+      orbitGroup.add(line);
     });
 
-    const nodes=[];
-    for(let i=0;i<9;i++){
-      const n=new THREE.Mesh(new THREE.SphereGeometry(.055,12,12),new THREE.MeshBasicMaterial({color:i%3===0?0x69e7d8:0x8e7dff}));
-      const a=i/9*Math.PI*2, r=2.2+(i%2)*.35;
-      n.position.set(Math.cos(a)*r, Math.sin(a*1.7)*.7, Math.sin(a)*r*.72);
-      root.add(n); nodes.push(n);
+    // A few distant signal points prevent the object from feeling like a flat
+    // isolated circle.
+    const signalCount=170;
+    const signalPos=new Float32Array(signalCount*3);
+    for(let i=0;i<signalCount;i++){
+      signalPos[i*3]=(Math.random()-.5)*7.4;
+      signalPos[i*3+1]=(Math.random()-.5)*5.4;
+      signalPos[i*3+2]=(Math.random()-.5)*3.6;
     }
-
-    // Neural links turn the orb into a living model graph instead of a static shape.
-    const linkPositions = [];
-    nodes.forEach((n) => {
-      linkPositions.push(0,0,0,n.position.x,n.position.y,n.position.z);
-    });
-    const linkGeo = new THREE.BufferGeometry();
-    linkGeo.setAttribute("position",new THREE.Float32BufferAttribute(linkPositions,3));
-    const links = new THREE.LineSegments(
-      linkGeo,
-      new THREE.LineBasicMaterial({color:0x7166ff,transparent:true,opacity:.12})
+    const signalGeo=new THREE.BufferGeometry();
+    signalGeo.setAttribute("position",new THREE.BufferAttribute(signalPos,3));
+    const signals=new THREE.Points(
+      signalGeo,
+      new THREE.PointsMaterial({
+        color:0x6258dc,size:.018,transparent:true,opacity:.28,
+        depthWrite:false,blending:THREE.AdditiveBlending
+      })
     );
-    root.add(links);
-
-    const outerField = new THREE.Points(
-      new THREE.BufferGeometry(),
-      new THREE.PointsMaterial({color:0x7770ff,size:.018,transparent:true,opacity:.38})
-    );
-    const fieldCount = 150;
-    const fieldPos = new Float32Array(fieldCount * 3);
-    for(let i=0;i<fieldCount;i++){
-      fieldPos[i*3]=(Math.random()-.5)*7;
-      fieldPos[i*3+1]=(Math.random()-.5)*4.8;
-      fieldPos[i*3+2]=(Math.random()-.5)*3.2;
-    }
-    outerField.geometry.setAttribute("position",new THREE.BufferAttribute(fieldPos,3));
-    scene.add(outerField);
+    scene.add(signals);
 
     const pointer={x:0,y:0};
-    addEventListener("pointermove",(e)=>{
+    addEventListener("pointermove",e=>{
       pointer.x=(e.clientX/innerWidth-.5)*2;
       pointer.y=(e.clientY/innerHeight-.5)*2;
     },{passive:true});
 
     function resize(){
-      const w=canvas.clientWidth||600,h=canvas.clientHeight||600;
-      renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+      const w=canvas.clientWidth||700;
+      const h=canvas.clientHeight||650;
+      renderer.setSize(w,h,false);
+      camera.aspect=w/h;
+      camera.updateProjectionMatrix();
     }
-    resize(); addEventListener("resize",resize);
+    resize();
+    addEventListener("resize",resize);
+
     let t=0;
     function animate(){
-      t+=.005;
-      root.rotation.y=t*.48 + pointer.x*.11;
-      root.rotation.x=Math.sin(t*.7)*.08 + pointer.y*.05;
-      core.rotation.x=t*.32; core.rotation.z=t*.18;
-      particles.rotation.y=-t*.22; edges.rotation.y=t*.18; links.rotation.y=-t*.12;
-      outerField.rotation.y=t*.035; outerField.rotation.x=-t*.018;
-      nodes.forEach((n,i)=>n.position.y += Math.sin(t*2+i)*.0008);
+      t+=.0045;
+      root.rotation.y=t*.34 + pointer.x*.12;
+      root.rotation.x=Math.sin(t*.6)*.06 + pointer.y*.045;
+      cloud.rotation.y=-t*.18;
+      cloud.rotation.z=Math.sin(t*.35)*.03;
+      inner.scale.setScalar(1 + Math.sin(t*1.7)*.025);
+      orbitGroup.rotation.y=t*.12;
+      orbitGroup.rotation.x=Math.sin(t*.5)*.035;
+      signals.rotation.y=t*.018;
+      signals.rotation.x=-t*.01;
       renderer.render(scene,camera);
       requestAnimationFrame(animate);
     }

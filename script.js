@@ -348,10 +348,15 @@ document.querySelectorAll(".project").forEach(card => {
       pointer.x += (pointer.tx - pointer.x) * .035;
       pointer.y += (pointer.ty - pointer.y) * .035;
 
-      world.rotation.y = t * .28 + pointer.x * .13;
-      world.rotation.x = Math.sin(t * .55) * .055 + pointer.y * .045;
+      // Layered motion: the model breathes, tilts toward the cursor and shifts in depth.
+      world.rotation.y = t * .28 + pointer.x * .18;
+      world.rotation.x = Math.sin(t * .55) * .055 + pointer.y * .075;
+      world.position.x = pointer.x * .075;
+      world.position.y = Math.sin(t * .8) * .035 + pointer.y * .045;
 
       cloud.rotation.y = -t * .16;
+      cloud.rotation.x = Math.sin(t * .42) * .025;
+      cloud.position.z = Math.sin(t * .7) * .035;
       haloCloud.rotation.y = t * .21;
       haloCloud.rotation.x = Math.sin(t * .3) * .05;
 
@@ -373,8 +378,16 @@ document.querySelectorAll(".project").forEach(card => {
         item.node.scale.setScalar(pulse);
       });
 
-      signals.rotation.y = t * .016;
-      signals.rotation.x = -t * .009;
+      signals.rotation.y = t * .016 + pointer.x * .025;
+      signals.rotation.x = -t * .009 + pointer.y * .018;
+      signals.position.x = pointer.x * .035;
+      signals.position.y = pointer.y * .025;
+
+      // Slow camera breathing adds actual depth rather than a flat spin.
+      camera.position.x += ((pointer.x * .12) - camera.position.x) * .012;
+      camera.position.y += ((-pointer.y * .09) - camera.position.y) * .012;
+      camera.position.z += ((7.4 + Math.sin(t * .6) * .06) - camera.position.z) * .018;
+      camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
@@ -421,4 +434,38 @@ document.querySelectorAll(".project").forEach(card => {
     });
     el.addEventListener("pointerleave",()=>{el.style.transform="";});
   });
+})();
+
+
+/* Text + object choreography: pointer depth for the hero copy */
+(function initHeroDepth(){
+  const hero=document.querySelector(".hero");
+  const copy=document.querySelector(".hero-copy");
+  const lines=document.querySelectorAll(".hero h1 .hero-name,.hero h1 em,.hero h1 .hero-tail");
+  const stage=document.querySelector(".hero-stage");
+  if(!hero || !copy || !lines.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let px=0,py=0,cx=0,cy=0,raf=0;
+  addEventListener("pointermove",e=>{
+    if(innerWidth<900) return;
+    px=(e.clientX/innerWidth-.5);
+    py=(e.clientY/innerHeight-.5);
+  },{passive:true});
+
+  const frame=()=>{
+    cx += (px-cx)*.045;
+    cy += (py-cy)*.045;
+    copy.style.transform=`translate3d(${(cx*5).toFixed(2)}px,${(cy*3).toFixed(2)}px,0) rotateX(${(-cy*1.4).toFixed(2)}deg) rotateY(${(cx*1.8).toFixed(2)}deg)`;
+    lines.forEach((line,i)=>{
+      const depth=(i+1)*1.8;
+      line.style.setProperty("--depth-x",(cx*depth).toFixed(2)+"px");
+      line.style.setProperty("--depth-y",(cy*depth*.7).toFixed(2)+"px");
+    });
+    if(stage){
+      stage.style.setProperty("--scene-x",(cx*10).toFixed(2)+"px");
+      stage.style.setProperty("--scene-y",(cy*7).toFixed(2)+"px");
+    }
+    raf=requestAnimationFrame(frame);
+  };
+  frame();
 })();

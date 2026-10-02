@@ -905,3 +905,122 @@ body{
   .hero h1 em,.hero h1 em::after,.scene-3d-mark,.scene-sphere,.scene-ring,.scene-atmosphere,.hero::before{animation:none!important}
   .hero-stage{transform:translateY(-50%)!important}
 }
+
+
+/* =========================================================
+   CINEMATIC MOTION / ZOOM DENSITY PASS
+   ========================================================= */
+.hero{
+  min-height:clamp(680px,86svh,900px);
+  height:auto;
+  display:flex;
+  align-items:center;
+  padding-top:96px;
+  padding-bottom:64px;
+}
+.hero-copy{
+  will-change:transform;
+  transform-style:preserve-3d;
+}
+.hero h1 .hero-name,
+.hero h1 em,
+.hero h1 .hero-tail{
+  will-change:transform,opacity;
+}
+.hero h1 .hero-name{
+  animation:heroTextFloat 7s ease-in-out infinite;
+  animation-delay:.35s;
+}
+.hero h1 em{
+  animation:titleBreath 5s ease-in-out infinite,heroTextFloat 8s ease-in-out infinite;
+  animation-delay:0s,.7s;
+}
+.hero h1 .hero-tail{
+  animation:heroTailDrift 6.5s ease-in-out infinite;
+  animation-delay:1s;
+}
+.kicker,.hero-text,.hero-actions,.social-row{
+  animation:heroContentRise .8s cubic-bezier(.2,.75,.2,1) both;
+}
+.kicker{animation-delay:.08s}
+.hero-text{animation-delay:.22s}
+.hero-actions{animation-delay:.34s}
+.social-row{animation-delay:.46s}
+
+.scene-3d-mark{
+  animation:sceneFloat 9s ease-in-out infinite;
+}
+.scene-sphere{
+  animation:sphereFloat 5.8s ease-in-out infinite, sphereTurn 10s linear infinite;
+}
+.scene-ring{
+  transform-style:preserve-3d;
+}
+.scene-node{
+  animation:nodePulse 2.8s ease-in-out infinite;
+}
+.node-two{animation-delay:-.8s}
+.node-three{animation-delay:-1.6s}
+.node-four{animation-delay:-2.2s}
+
+@keyframes heroTextFloat{
+  0%,100%{transform:translate3d(0,0,0) rotateX(.5deg)}
+  50%{transform:translate3d(0,-3px,8px) rotateX(-.4deg)}
+}
+@keyframes heroTailDrift{
+  0%,100%{transform:translate3d(0,0,12px)}
+  50%{transform:translate3d(5px,-2px,18px)}
+}
+@keyframes heroContentRise{
+  from{opacity:0;transform:translate3d(0,16px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes sceneFloat{
+  0%,100%{transform:translate(-50%,-50%) perspective(900px) rotateX(12deg) rotateY(-16deg) translate3d(0,0,0)}
+  50%{transform:translate(-50%,-50%) perspective(900px) rotateX(15deg) rotateY(-10deg) translate3d(7px,-12px,18px)}
+}
+@keyframes sphereTurn{
+  0%,100%{margin-left:0}
+  50%{margin-left:3px}
+}
+@keyframes nodePulse{
+  0%,100%{opacity:.7;filter:brightness(.95)}
+  50%{opacity:1;filter:brightness(1.45);transform:translateZ(80px) scale(1.28)}
+}
+
+@media(max-width:1100px){
+  .hero{
+    min-height:clamp(650px,84svh,820px);
+    padding-top:92px;
+    padding-bottom:58px;
+  }
+}
+@media(max-width:900px){
+  .hero{
+    min-height:780px;
+    display:block;
+    padding-top:112px;
+    padding-bottom:70px;
+  }
+}
+@media(max-width:600px){
+  .hero{
+    min-height:900px;
+    display:block;
+    padding:105px 22px 70px;
+  }
+  .hero h1 .hero-name,
+  .hero h1 em,
+  .hero h1 .hero-tail{
+    animation:none;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .hero h1 .hero-name,
+  .hero h1 em,
+  .hero h1 .hero-tail,
+  .kicker,.hero-text,.hero-actions,.social-row,
+  .scene-3d-mark,.scene-sphere,.scene-node{
+    animation:none!important;
+  }
+}

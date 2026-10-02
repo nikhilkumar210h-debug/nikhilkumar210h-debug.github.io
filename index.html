@@ -68,7 +68,7 @@
 
   <header class="nav" id="nav">
     <a href="#home" class="brand"><span>NK</span><b>Nikhil Kumar</b></a>
-    <nav>
+    <nav id="primary-navigation">
       <a href="#about">About</a>
       <a href="#skills">Skills</a>
       <a href="#journey">Journey</a>
@@ -76,7 +76,7 @@
       <a href="#contact">Contact</a>
     </nav>
     <a class="nav-btn" href="mailto:nikhilkumar45374@gmail.com">Let's talk <i>↗</i></a>
-    <button class="menu" id="menu" aria-label="Open menu"><span></span><span></span></button>
+    <button class="menu" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="primary-navigation"><span></span><span></span></button>
   </header>
 
   <main>
@@ -85,9 +85,9 @@
       <div class="hero-orbit orbit-b"></div>
       <div class="hero-copy reveal">
         <div class="status"><span></span> BUILDING THE NEXT VERSION OF MYSELF</div>
-        <p class="kicker mono">PYTHON · DATA · AI · MACHINE LEARNING</p>
+        <p class="kicker mono">PYTHON · DATA · AI · MACHINE LEARNING</p><div class="hero-focus mono"><span>FOCUS</span> APPLIED ML · EVALUATION · AI SYSTEMS</div>
         <h1>
-          <big>Nikhil Kumar</big> 
+          <span class="hero-name">Nikhil Kumar</span> 
           <br>
           <em>Machine Learning Engineer</em>
           turning curiosity into intelligent systems.
@@ -104,7 +104,7 @@
           <a href="https://www.instagram.com/nikhil_kumar_210h/" target="_blank" rel="noopener noreferrer">Instagram</a>
         </div>
       </div>
-      <div class="hero-portrait reveal delay-1" aria-label="Nikhil Kumar portrait photo">
+      <div class="hero-3d reveal delay-1" aria-label="Interactive 3D machine learning visualization"><div class="ml-orb"><div class="orb-core"></div><span class="node n1"></span><span class="node n2"></span><span class="node n3"></span><span class="node n4"></span><span class="node n5"></span><span class="orbit orbit-x"></span><span class="orbit orbit-y"></span><span class="orbit orbit-z"></span></div><div class="orb-label mono"><span>LIVE MODEL SPACE</span><b>03D</b></div></div><div class="hero-portrait reveal delay-1" aria-label="Nikhil Kumar portrait photo">
         <div class="portrait-frame">
           <img src="assets/img/profile_image.png" alt="Portrait of Nikhil Kumar">
         </div>
@@ -228,7 +228,7 @@
         <h2>Things I've<br><span>actually built.</span></h2>
         <p>No imaginary client work. Just experiments, tools and projects that helped me learn.</p>
       </div>
-      <div class="project-grid">
+      <div class="flagship reveal"><div class="flagship-copy"><div class="project-meta"><span>FLAGSHIP / IN PROGRESS</span><span>ML × AI</span></div><h3>Document Intelligence Lab</h3><p>A portfolio-grade ML system I’m building around retrieval, evaluation and grounded answers over real documents — designed to show the full path from data preparation to an evaluated AI application.</p><div class="project-stack"><span>Python</span><span>RAG</span><span>Embeddings</span><span>Evaluation</span><span>FastAPI</span></div><div class="flagship-note mono">BUILDING NEXT // DATA → RETRIEVE → EVALUATE → DEPLOY</div></div><div class="flagship-visual" aria-hidden="true"><div class="data-core"></div><span>RETRIEVE</span><span>RANK</span><span>EVALUATE</span></div></div><div class="project-grid">
         <article class="project featured reveal">
           <div class="project-meta"><span>AI / PYTHON</span><span>01</span></div>
           <h3>Grude — Personal AI Assistant</h3>

@@ -92,12 +92,12 @@ const io = new IntersectionObserver(entries => {
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 if (menuButton && navMenu) {
-  menuButton.addEventListener("click", () => navMenu.classList.toggle("mobile-open"));
+  menuButton.addEventListener("click", () => { const open = navMenu.classList.toggle("mobile-open"); menuButton.setAttribute("aria-expanded", String(open)); menuButton.setAttribute("aria-label", open ? "Close menu" : "Open menu"); });
 }
 
 document.querySelectorAll(".nav nav a").forEach(a => {
   a.addEventListener("click", () => {
-    if (navMenu) navMenu.classList.remove("mobile-open");
+    if (navMenu) navMenu.classList.remove("mobile-open"); menuButton?.setAttribute("aria-expanded","false");
   });
 });
 

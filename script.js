@@ -184,6 +184,39 @@ document.querySelectorAll(".project").forEach(card => {
       root.add(n); nodes.push(n);
     }
 
+    // Neural links turn the orb into a living model graph instead of a static shape.
+    const linkPositions = [];
+    nodes.forEach((n) => {
+      linkPositions.push(0,0,0,n.position.x,n.position.y,n.position.z);
+    });
+    const linkGeo = new THREE.BufferGeometry();
+    linkGeo.setAttribute("position",new THREE.Float32BufferAttribute(linkPositions,3));
+    const links = new THREE.LineSegments(
+      linkGeo,
+      new THREE.LineBasicMaterial({color:0x7166ff,transparent:true,opacity:.12})
+    );
+    root.add(links);
+
+    const outerField = new THREE.Points(
+      new THREE.BufferGeometry(),
+      new THREE.PointsMaterial({color:0x7770ff,size:.018,transparent:true,opacity:.38})
+    );
+    const fieldCount = 150;
+    const fieldPos = new Float32Array(fieldCount * 3);
+    for(let i=0;i<fieldCount;i++){
+      fieldPos[i*3]=(Math.random()-.5)*7;
+      fieldPos[i*3+1]=(Math.random()-.5)*4.8;
+      fieldPos[i*3+2]=(Math.random()-.5)*3.2;
+    }
+    outerField.geometry.setAttribute("position",new THREE.BufferAttribute(fieldPos,3));
+    scene.add(outerField);
+
+    const pointer={x:0,y:0};
+    addEventListener("pointermove",(e)=>{
+      pointer.x=(e.clientX/innerWidth-.5)*2;
+      pointer.y=(e.clientY/innerHeight-.5)*2;
+    },{passive:true});
+
     function resize(){
       const w=canvas.clientWidth||600,h=canvas.clientHeight||600;
       renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
@@ -192,9 +225,11 @@ document.querySelectorAll(".project").forEach(card => {
     let t=0;
     function animate(){
       t+=.005;
-      root.rotation.y=t*.48; root.rotation.x=Math.sin(t*.7)*.08;
+      root.rotation.y=t*.48 + pointer.x*.11;
+      root.rotation.x=Math.sin(t*.7)*.08 + pointer.y*.05;
       core.rotation.x=t*.32; core.rotation.z=t*.18;
-      particles.rotation.y=-t*.22; edges.rotation.y=t*.18;
+      particles.rotation.y=-t*.22; edges.rotation.y=t*.18; links.rotation.y=-t*.12;
+      outerField.rotation.y=t*.035; outerField.rotation.x=-t*.018;
       nodes.forEach((n,i)=>n.position.y += Math.sin(t*2+i)*.0008);
       renderer.render(scene,camera);
       requestAnimationFrame(animate);
